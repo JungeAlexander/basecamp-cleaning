@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# Determine members to be removed from Basecamp by identifying those members that did not reply to the
+# The ISCBSC Basecamp cleaning utility.
+# Determines members to be removed from Basecamp by identifying those members that did not reply to the
 # 'Basecamp cleaning' thread. Run with -h/--help flag for more information.
 from __future__ import print_function
 import argparse
@@ -19,6 +20,12 @@ def is_existing_file(arg):
 
 
 def map_organizations_to_members(all_people_html_path):
+    """
+    Extract members of each organization on Basecamp.
+
+    :param all_people_html_path: path to .html file containing all Basecamp members
+    :return: dict: str -> set(str); maps each organization to its set of members
+    """
     organization_to_people = collections.defaultdict(set)
 
     # Organizations are listed with the following tag: <h3 class="fn org">The Middle layer</h3>
@@ -47,7 +54,8 @@ def map_organizations_to_members(all_people_html_path):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=
                                      """
-    Determine members to be removed from Basecamp by identifying those members that did not reply to the 'Basecamp cleaning'
+    The ISCBSC Basecamp cleaning utility.
+    Determines members to be removed from Basecamp by identifying those members that did not reply to the 'Basecamp cleaning'
     thread. Names of accounts to be removed are written to stdout while stderr is used for logging purposes.
                                      """)
     parser.add_argument('all_people_html', type=is_existing_file,
