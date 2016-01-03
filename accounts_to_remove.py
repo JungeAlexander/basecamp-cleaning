@@ -34,15 +34,16 @@ def map_organizations_to_members(all_people_html_path):
     people_regex = re.compile('<h3 class="fn">(.+)</h3>')
 
     current_organization = None
-    with open(all_people_html) as all_people_file:
+    with open(all_people_html_path) as all_people_file:
         for line in all_people_file:
             line_stripped = line.strip()
             organization_match = organization_regexp.match(line_stripped)
             people_match = people_regex.match(line_stripped)
 
             if organization_match and people_match:
-                logging.error('Line {} in file {} matched both organization and people html tag.'.format(line,
-                                                                                                         all_people_html))
+                logging.error('Line {} in file {} matched both organization and people html tag.'.format(
+                        line,
+                        all_people_html))
 
             if organization_match:
                 current_organization = organization_match.groups(1)[0]
@@ -51,13 +52,25 @@ def map_organizations_to_members(all_people_html_path):
     return organization_to_people
 
 
+def extract_people_to_keep(basecamp_cleaning_html_path):
+    """
+    Load a list of members to keep on Basecamp.
+
+    :param basecamp_cleaning_html_path: Path to .html file with thread about Basecamp cleaning.
+    :return: set(str); containers those members that replied to the Basecamp cleaning thread.
+    """
+    # TODO implement
+    people_set = set()
+    return people_set
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description=
-                                     """
+    parser = argparse.ArgumentParser(description="""
     The ISCBSC Basecamp cleaning utility.
-    Determines members to be removed from Basecamp by identifying those members that did not reply to the 'Basecamp cleaning'
-    thread. Names of accounts to be removed are written to stdout while stderr is used for logging purposes.
-                                     """)
+    Determines members to be removed from Basecamp by identifying those members that did not reply to the
+    'Basecamp cleaning' thread. Names of accounts to be removed are written to stdout while stderr is used for logging
+    purposes.
+    """)
     parser.add_argument('all_people_html', type=is_existing_file,
                         help='Obtained by saving https://iscbsc.basecamphq.com/companies as an .html file.')
     parser.add_argument('basecamp_cleaning_html', type=is_existing_file,
@@ -73,3 +86,7 @@ if __name__ == '__main__':
     for org in sorted(org_to_people.keys()):
         member_set = org_to_people[org]
         logging.info('Organization {} has {:d} members.'.format(org, len(member_set)))
+
+    keep_people = extract_people_to_keep(basecamp_cleaning_html)
+
+    # TODO remove keep_people from org_to_people and then print people to remove sorted by organization and user name
