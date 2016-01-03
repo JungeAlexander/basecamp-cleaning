@@ -106,12 +106,16 @@ if __name__ == '__main__':
     # cleaning_post_author = "Alexander Junge"
 
     org_to_people = map_organizations_to_members(all_people_html)
+    total_member_count = 0
     for org in sorted(org_to_people.keys()):
         member_set = org_to_people[org]
+        total_member_count += len(member_set)
         logging.info('Organization {} has {:d} members.'.format(org, len(member_set)))
+    logging.info('Total: {:d}'.format(total_member_count))
 
     keep_people = extract_people_to_keep(basecamp_cleaning_html)
     keep_people.add(cleaning_post_author)
+    logging.info('{:d} members replied to cleaning thread in order to keep their account.'.format(len(keep_people)))
 
     # TODO add sanity check that all people in keep_people are indeed found in org_to_people
 
