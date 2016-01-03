@@ -1,7 +1,16 @@
 # ISCBSC Basecamp cleaning
 
 A small script to help the ISCBSC clean up its Basecamp instance.
-After pulling the repository, execute the following for more information:
+
+## Usage
+
+At first, clone the repository from GitHub:
+
+```
+git clone https://github.com/JungeAlexander/basecamp-cleaning.git
+```
+
+After cloning the repository, execute the following for usage information:
 
 ```
 python accounts_to_remove.py --help
