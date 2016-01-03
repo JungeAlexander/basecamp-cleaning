@@ -59,8 +59,22 @@ def extract_people_to_keep(basecamp_cleaning_html_path):
     :param basecamp_cleaning_html_path: Path to .html file with thread about Basecamp cleaning.
     :return: set(str); containers those members that replied to the Basecamp cleaning thread.
     """
-    # TODO implement
+    # Match the following two lines occurring in header of each post
+    # <a href="https://iscbsc.basecamphq.com/projects/1765680-general-operations/posts/95816049/comments#comment_331359817" class="permalink" name="331359817">
+    # <strong>Some user name</strong>
+    user_header_re = re.compile('<a href="https://iscbsc.basecamphq.com/projects/.+" class="permalink" name=.+>')
+    user_name_re = re.compile('<strong>(.+)</strong>')
+
     people_set = set()
+    with open(basecamp_cleaning_html_path) as basecamp_cleaning_file:
+        for line in basecamp_cleaning_file:
+            line_stripped = line.strip()
+            if user_header_re.match(line_stripped):
+                next_line_stripped = basecamp_cleaning_file.readline().strip()
+                user_name_match = user_name_re.match(next_line_stripped)
+                if user_name_match:
+                    user_name = user_name_match.groups(1)[0]
+                    people_set.add(user_name)
     return people_set
 
 
@@ -75,12 +89,21 @@ if __name__ == '__main__':
                         help='Obtained by saving https://iscbsc.basecamphq.com/companies as an .html file.')
     parser.add_argument('basecamp_cleaning_html', type=is_existing_file,
                         help='Obtained by saving Basecamp cleaning thread as an .html file.')
+    parser.add_argument('cleaning_post_author',
+                        help="""
+                        User name of the author of the Basecamp post introducing the Basecamp cleaning.
+                        The author's user name must be specified as a command-line argument as this is not read from
+                        file given as basecamp_cleaning_html argument.
+                        Remember quotation marks around user names containing spaces.
+                        """)
     args = parser.parse_args()
 
     all_people_html = args.all_people_html
     # all_people_html = 'ISCB Student Council_ All People.html'
     basecamp_cleaning_html = args.basecamp_cleaning_html
     # basecamp_cleaning_html = 'General Operations _ Basecamp cleaning 2015.html'
+    cleaning_post_author = args.cleaning_post_author
+    # cleaning_post_author = "Alexander Junge"
 
     org_to_people = map_organizations_to_members(all_people_html)
     for org in sorted(org_to_people.keys()):
@@ -88,5 +111,8 @@ if __name__ == '__main__':
         logging.info('Organization {} has {:d} members.'.format(org, len(member_set)))
 
     keep_people = extract_people_to_keep(basecamp_cleaning_html)
+    keep_people.add(cleaning_post_author)
+
+    # TODO add sanity check that all people in keep_people are indeed found in org_to_people
 
     # TODO remove keep_people from org_to_people and then print people to remove sorted by organization and user name
