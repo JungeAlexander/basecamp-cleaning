@@ -7,7 +7,7 @@ A small script to help the ISCBSC clean up its Basecamp instance.
 At first, clone the repository from GitHub:
 
 ```
-git clone https://github.com/JungeAlexander/basecamp-cleaning.git
+git clone https://github.com/JungeAlexander/iscbsc-basecamp-cleaning.git
 ```
 
 After cloning the repository, execute the following for usage information:
