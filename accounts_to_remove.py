@@ -123,4 +123,15 @@ if __name__ == '__main__':
                       'organization: {}'.format(len(keep_people_not_in_organization),
                                                 ', '.join(keep_people_not_in_organization)))
 
-    # TODO remove keep_people from org_to_people and then print people to remove sorted by organization and user name
+    print('Members to remove:')
+    for org in sorted(org_to_people.keys()):
+        member_set = org_to_people[org]
+        member_set.difference_update(keep_people)
+        print(org)
+        print('---------')
+        if len(member_set) > 0:
+            print('\n'.join(sorted(list(member_set))))
+        print()
+
+    # TODO sanity check that number of members in org_to_people is as expected, i.e., removing
+    # |keep_people| - |keep_people_not_in_organization|
