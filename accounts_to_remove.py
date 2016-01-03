@@ -46,9 +46,9 @@ def map_organizations_to_members(all_people_html_path):
                         all_people_html))
 
             if organization_match:
-                current_organization = organization_match.groups(1)[0]
+                current_organization = organization_match.groups(1)[0].strip()
             elif people_match:
-                organization_to_people[current_organization].add(people_match.groups(1)[0])
+                organization_to_people[current_organization].add(people_match.groups(1)[0].strip())
     return organization_to_people
 
 
@@ -74,7 +74,7 @@ def extract_people_to_keep(basecamp_cleaning_html_path):
                 user_name_match = user_name_re.match(next_line_stripped)
                 if user_name_match:
                     user_name = user_name_match.groups(1)[0]
-                    people_set.add(user_name)
+                    people_set.add(user_name.strip())
     return people_set
 
 
