@@ -106,17 +106,21 @@ if __name__ == '__main__':
     # cleaning_post_author = "Alexander Junge"
 
     org_to_people = map_organizations_to_members(all_people_html)
-    total_member_count = 0
+    all_people = set()
     for org in sorted(org_to_people.keys()):
         member_set = org_to_people[org]
-        total_member_count += len(member_set)
+        all_people.update(member_set)
         logging.info('Organization {} has {:d} members.'.format(org, len(member_set)))
-    logging.info('Total: {:d}'.format(total_member_count))
+    logging.info('Total: {:d}'.format(len(all_people)))
 
     keep_people = extract_people_to_keep(basecamp_cleaning_html)
     keep_people.add(cleaning_post_author)
     logging.info('{:d} members replied to cleaning thread in order to keep their account.'.format(len(keep_people)))
 
-    # TODO add sanity check that all people in keep_people are indeed found in org_to_people
+    keep_people_not_in_organization = [keep for keep in keep_people if keep not in all_people]
+    if len(keep_people_not_in_organization) > 0:
+        logging.error('These {:d} member(s) that replied to Basecamp cleaning thread were/was not found in any '
+                      'organization: {}'.format(len(keep_people_not_in_organization),
+                                                ', '.join(keep_people_not_in_organization)))
 
     # TODO remove keep_people from org_to_people and then print people to remove sorted by organization and user name
