@@ -1,8 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # The ISCBSC Basecamp cleaning utility.
 # Determines members to be removed from Basecamp by identifying those members that did not reply to the
 # 'Basecamp cleaning' thread. Run with -h/--help flag for more information.
-from __future__ import print_function
 import argparse
 import collections
 import logging
@@ -40,10 +39,7 @@ def map_organizations_to_members(all_people_html_path):
             organization_match = organization_regexp.match(line_stripped)
             people_match = people_regex.match(line_stripped)
 
-            if organization_match and people_match:
-                logging.error('Line {} in file {} matched both organization and people html tag.'.format(
-                        line,
-                        all_people_html))
+            assert not(organization_match and people_match)
 
             if organization_match:
                 current_organization = organization_match.groups(1)[0].strip()
@@ -83,7 +79,8 @@ if __name__ == '__main__':
     The ISCBSC Basecamp cleaning utility.
     Determines members to be removed from Basecamp by identifying those members that did not reply to the
     'Basecamp cleaning' thread. Names of accounts to be removed are written to stdout while stderr is used for logging
-    purposes.
+    purposes. Note: the content of the reply by t user is not checked; only the fact that the user replied to the
+    Basecamp cleaning thread is enough to keep the account active.
     """)
     parser.add_argument('all_people_html', type=is_existing_file,
                         help='Obtained by saving https://iscbsc.basecamphq.com/companies as an .html file.')
@@ -92,7 +89,7 @@ if __name__ == '__main__':
     parser.add_argument('cleaning_post_author',
                         help="""
                         User name of the author of the Basecamp post introducing the Basecamp cleaning.
-                        The author's user name must be specified as a command-line argument as this is not read from
+                        The author's user name must be specified as it is not read from
                         file given as basecamp_cleaning_html argument.
                         Remember quotation marks around user names containing spaces.
                         """)
@@ -119,19 +116,22 @@ if __name__ == '__main__':
 
     keep_people_not_in_organization = [keep for keep in keep_people if keep not in all_people]
     if len(keep_people_not_in_organization) > 0:
-        logging.error('These {:d} member(s) that replied to Basecamp cleaning thread were/was not found in any '
+        logging.warning('These {:d} member(s) that replied to Basecamp cleaning thread were/was not found in any '
                       'organization: {}'.format(len(keep_people_not_in_organization),
                                                 ', '.join(keep_people_not_in_organization)))
 
-    print('Members to remove:')
+    remove_people = set()
     for org in sorted(org_to_people.keys()):
         member_set = org_to_people[org]
         member_set.difference_update(keep_people)
-        print(org)
-        print('---------')
+        remove_people.update(member_set)
+    assert len(all_people) == (len(remove_people) + len(keep_people) - len(keep_people_not_in_organization))
+    logging.info('{:d} members should be removed from Basecamp.'.format(len(remove_people)))
+
+    print('Members to remove:' + os.linesep)
+    for org in sorted(org_to_people.keys()):
         if len(member_set) > 0:
+            print(org)
+            print('---------')
             print('\n'.join(sorted(list(member_set))))
         print()
-
-    # TODO sanity check that number of members in org_to_people is as expected, i.e., removing
-    # |keep_people| - |keep_people_not_in_organization|
