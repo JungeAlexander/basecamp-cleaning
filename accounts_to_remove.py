@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # The ISCBSC Basecamp cleaning utility.
 # Determines members to be removed from Basecamp by identifying those members that did not reply to the
 # 'Basecamp cleaning' thread. Run with -h/--help flag for more information.
+from __future__ import print_function
 import argparse
 import collections
 import logging
@@ -63,7 +64,10 @@ def extract_people_to_keep(basecamp_cleaning_html_path):
 
     people_set = set()
     with open(basecamp_cleaning_html_path) as basecamp_cleaning_file:
-        for line in basecamp_cleaning_file:
+        while True:
+            line = basecamp_cleaning_file.readline()
+            if not line:
+                break
             line_stripped = line.strip()
             if user_header_re.match(line_stripped):
                 next_line_stripped = basecamp_cleaning_file.readline().strip()
@@ -117,8 +121,8 @@ if __name__ == '__main__':
     keep_people_not_in_organization = [keep for keep in keep_people if keep not in all_people]
     if len(keep_people_not_in_organization) > 0:
         logging.warning('These {:d} member(s) that replied to Basecamp cleaning thread were/was not found in any '
-                      'organization: {}'.format(len(keep_people_not_in_organization),
-                                                ', '.join(keep_people_not_in_organization)))
+                        'organization: {}'.format(len(keep_people_not_in_organization),
+                                                  ', '.join(keep_people_not_in_organization)))
 
     remove_people = set()
     for org in sorted(org_to_people.keys()):
@@ -130,6 +134,7 @@ if __name__ == '__main__':
 
     print('Members to remove:' + os.linesep)
     for org in sorted(org_to_people.keys()):
+        member_set = org_to_people[org]
         if len(member_set) > 0:
             print(org)
             print('---------')
