@@ -1,6 +1,7 @@
 # ISCBSC Basecamp cleaning
 
 A small script to help the ISCBSC clean up its Basecamp instance.
+In lack of a better approch, the script works by parsing Basecamp html pages and extracts those users that should be deleted.
 
 ## Usage
 
